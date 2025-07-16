@@ -3,133 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sales Recovery Dashboard</title>
+    <title>Sales Dashboard - Level 2</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary-color: #4A90E2;
-            --primary-dark: #3a7ac8;
-            --secondary-color: #50E3C2;
-            --text-color: #333;
-            --text-light: #555;
-            --bg-color: #f4f7fa;
-            --card-bg: #ffffff;
-            --border-color: #e0e6ed;
-            --danger-color: #D0021B;
-            --warning-color: #F5A623;
-            --success-color: #27AE60;
-            --shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
-            --border-radius: 12px;
+            --primary-color: #4A90E2; --primary-dark: #3a7ac8; --secondary-color: #50E3C2;
+            --text-color: #333; --text-light: #555; --bg-color: #f4f7fa; --card-bg: #ffffff;
+            --border-color: #e0e6ed; --danger-color: #D0021B; --warning-color: #F5A623;
+            --success-color: #27AE60; --shadow: 0 8px 25px rgba(0, 0, 0, 0.07); --border-radius: 12px;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; padding: 20px; }
-        .dashboard { max-width: 1200px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 40px; }
-        .header h1 { color: var(--text-color); font-size: 2.8em; font-weight: 700; margin-bottom: 8px; }
-        .header .subtitle { color: var(--text-light); font-size: 1.2em; margin-bottom: 25px; }
-        .crisis-banner { background: var(--danger-color); color: white; padding: 15px 20px; border-radius: var(--border-radius); margin-bottom: 30px; font-size: 1.3em; font-weight: 600; box-shadow: 0 4px 15px rgba(208, 2, 27, 0.3); }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin-bottom: 40px; }
-        .stat-card { background: linear-gradient(135deg, var(--primary-color) 0%, #50E3C2 100%); color: white; padding: 30px; border-radius: var(--border-radius); text-align: center; box-shadow: var(--shadow); transition: transform 0.3s ease; }
-        .stat-card:hover { transform: translateY(-5px); }
-        .stat-card h3 { font-size: 2.5em; font-weight: 700; margin-bottom: 5px; }
-        .stat-card p { font-size: 1.1em; opacity: 0.9; }
-        .phase-container { margin-bottom: 25px; }
-        .phase-header { background: var(--card-bg); color: var(--text-color); padding: 20px 25px; border-radius: var(--border-radius); cursor: pointer; transition: all 0.3s ease; box-shadow: var(--shadow); border: 1px solid var(--border-color); }
-        .phase-header:hover { transform: translateY(-3px); border-color: var(--primary-color); }
-        .phase-header h2 { font-size: 1.6em; font-weight: 600; margin-bottom: 5px; }
-        .phase-header p { font-size: 1em; color: var(--text-light); }
-        .phase-content { display: none; padding: 25px; background: #fafcff; border-radius: 0 0 var(--border-radius) var(--border-radius); border: 1px solid var(--border-color); border-top: none; }
-        .phase-content.active { display: block; animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .week-card { background: var(--card-bg); border-radius: var(--border-radius); padding: 25px; margin-bottom: 25px; border: 1px solid #dbe2ea; }
-        .week-card h3 { color: var(--primary-dark); margin-bottom: 20px; font-size: 1.4em; font-weight: 600; border-left: 4px solid var(--primary-color); padding-left: 15px; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; padding: 20px; }
+        .dashboard { max-width: 1200px; margin: 0 auto; display: grid; gap: 25px; }
+        .header h1 { font-size: 2.5em; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .stat-card { background: var(--card-bg); padding: 25px; border-radius: var(--border-radius); box-shadow: var(--shadow); text-align: center; }
+        .stat-card h3 { font-size: 2.2em; font-weight: 700; color: var(--primary-color); }
+        .stat-card p { color: var(--text-light); }
+        .main-content { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
+        .phase-container { display: flex; flex-direction: column; gap: 20px; }
+        .phase-card { background: var(--card-bg); border-radius: var(--border-radius); box-shadow: var(--shadow); overflow: hidden; }
+        .phase-header { padding: 20px; background: var(--primary-color); color: white; cursor: pointer; }
+        .phase-content { padding: 20px; display: none; }
+        .phase-content.active { display: block; }
         .task-list { list-style: none; padding: 0; }
-        .task-list li { background: var(--card-bg); padding: 12px 15px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid var(--secondary-color); cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; }
-        .task-list li:hover { transform: translateX(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.04); }
-        .task-list li.completed { background: #f1fef9; color: #888; border-left-color: var(--success-color); }
-        .task-list li.completed span { text-decoration: line-through; opacity: 0.7; }
-        .checkbox { margin-right: 15px; width: 18px; height: 18px; accent-color: var(--success-color); pointer-events: none; }
+        .task-list li { padding: 12px; margin-bottom: 8px; border-radius: 8px; background: #f8f9fa; cursor: pointer; display: flex; align-items: center; transition: background-color 0.2s; }
+        .task-list li:hover { background-color: #e9ecef; }
+        .task-list li.completed { background: #eaf7ed; color: #888; }
+        .task-list li.completed span { text-decoration: line-through; }
+        .checkbox { margin-right: 15px; width: 18px; height: 18px; pointer-events: none; accent-color: var(--success-color); }
+        .btn { background-color: var(--primary-color); color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background-color 0.2s; }
+        .btn:hover { background-color: var(--primary-dark); }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 30px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: var(--border-radius); }
+        .modal.active { display: flex; align-items: center; justify-content: center; }
+        .modal-content h2 { margin-bottom: 20px; }
+        .modal-content input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 8px; }
+        @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div class="dashboard">
         <div class="header">
-            <h1>🎯 Sales Recovery Dashboard</h1>
-            <p class="subtitle">แผนฟื้นฟูยอดขายสู่เป้าหมาย 1,000,000 บาท</p>
-            <div class="crisis-banner">⚠️ CRISIS MODE: 21 สัปดาห์ (28 ก.ค. - 20 ธ.ค. 2568)</div>
+            <h1>Sales Recovery Dashboard</h1>
+            <p>เวอร์ชัน Level 2: บันทึกข้อมูลได้, มีฟอร์ม และกราฟแสดงผล</p>
         </div>
+
         <div class="stats-grid">
             <div class="stat-card"><h3>4</h3><p>ลูกค้าเดิม</p></div>
-            <div class="stat-card"><h3>857,688</h3><p>บาท ที่ต้องหา</p></div>
-            <div class="stat-card"><h3>21</h3><p>สัปดาห์</p></div>
-            <div class="stat-card"><h3>0%</h3><p>Referral Rate</p></div>
-        </div>
-        
-        <div class="phase-container">
-            <div class="phase-header" onclick="togglePhase(this)">
-                <div>
-                    <h2>Phase 1: Customer Recovery (สัปดาห์ 1-2)</h2>
-                    <p>เป้าหมาย: ทำให้ลูกค้าเดิม 4 ราย กลายเป็น "แฟนตัวจริง"</p>
-                </div>
-            </div>
-            <div class="phase-content">
-                <div class="week-card">
-                    <h3>สัปดาห์ที่ 1: "Value Bombing"</h3>
-                    <ul class="task-list">
-                        <li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span>วิเคราะห์ลูกค้าเดิม 4 ราย</span></li>
-                        <li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span>ส่งข้อมูลที่เป็นประโยชน์</span></li>
-                        <li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span>โทรถามความเป็นไป</span></li>
-                        <li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span>เยี่ยมลูกค้าทุกคน (ไม่ขาย)</span></li>
-                    </ul>
-                </div>
-                <div class="week-card">
-                    <h3>สัปดาห์ที่ 2: "Referral System Setup"</h3>
-                    <ul class="task-list">
-                        <li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span>ทำ Referral Card สวยๆ</span></li>
-                        <li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span>สร้างสคริปต์ขอแนะนำ</span></li>
-                        <li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span>ทดสอบขอแนะนำ 1 ราย</span></li>
-                    </ul>
-                </div>
-            </div>
+            <div class="stat-card"><h3>12</h3><p>Prospects</p></div>
+            <div class="stat-card"><h3>3</h3><p>กำลังติดตาม</p></div>
+            <div class="stat-card"><h3>1</h3><p>ปิดดีลแล้ว</p></div>
         </div>
 
-        <div class="phase-container">
-            <div class="phase-header" onclick="togglePhase(this)">
-                <div>
-                    <h2>Phase 2: Prospecting Intensive (สัปดาห์ 3-8)</h2>
-                    <p>เป้าหมาย: สร้างฐานลูกค้าใหม่ 20 ราย</p>
+        <div class="main-content">
+            <div class="phase-container">
+                <div class="phase-card">
+                    <div class="phase-header" onclick="togglePhase(this)"><h2>Phase 1: Customer Recovery</h2></div>
+                    <div class="phase-content active">
+                        <ul class="task-list">
+                            <li onclick="toggleTask(this, 'task-1')"><input type="checkbox" class="checkbox"><span>วิเคราะห์ลูกค้าเดิม 4 ราย</span></li>
+                            <li onclick="toggleTask(this, 'task-2')"><input type="checkbox" class="checkbox"><span>ส่งข้อมูลที่เป็นประโยชน์</span></li>
+                            <li onclick="toggleTask(this, 'task-3')"><input type="checkbox" class="checkbox"><span>โทรถามความเป็นไป</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="phase-card">
+                    <div class="phase-header" onclick="togglePhase(this)"><h2>Phase 2: Prospecting Intensive</h2></div>
+                    <div class="phase-content">
+                        <ul class="task-list">
+                            <li onclick="toggleTask(this, 'task-4')"><input type="checkbox" class="checkbox"><span>Cold Outreach: ผู้ประกอบการร้านค้า</span></li>
+                            <li onclick="toggleTask(this, 'task-5')"><input type="checkbox" class="checkbox"><span>Content Marketing: สร้าง Facebook Page</span></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-            <div class="phase-content">
-                <div class="week-card">
-                    <h3>แหล่งหา Prospects ใหม่</h3>
-                    <ul class="task-list">
-                        <li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span>Cold Outreach: ผู้ประกอบการร้านค้า</span></li>
-                        <li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span>Content Marketing: สร้าง Facebook Page</span></li>
-                        <li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span>Community Building: เข้าร่วมกลุ่มผู้ประกอบการ</span></li>
-                    </ul>
+
+            <div class="sidebar">
+                <div class="stat-card">
+                    <h3>ภาพรวมลูกค้า</h3>
+                    <canvas id="prospectChart"></canvas>
+                    <button class="btn" style="margin-top: 20px;" onclick="openModal()">+ เพิ่ม Prospect ใหม่</button>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div id="addProspectModal" class="modal">
+        <div class="modal-content">
+            <span onclick="closeModal()" style="float:right; cursor:pointer; font-size: 28px;">&times;</span>
+            <h2>เพิ่ม Prospect ใหม่</h2>
+            <form id="prospectForm">
+                <input type="text" id="prospectName" placeholder="ชื่อ Prospect" required>
+                <input type="text" id="prospectContact" placeholder="ข้อมูลติดต่อ (เบอร์โทร, Line)">
+                <input type="text" id="prospectSource" placeholder="ที่มา (เช่น เดินตลาด, Facebook)">
+                <button type="submit" class="btn">บันทึก</button>
+            </form>
         </div>
+    </div>
 
     <script>
+        // --- Task Management & Data Persistence ---
+        let tasks = {};
+
         function togglePhase(headerElement) {
             const content = headerElement.nextElementSibling;
             content.style.display = content.style.display === 'block' ? 'none' : 'block';
-            headerElement.classList.toggle('active');
         }
 
-        function toggleTask(taskElement) {
+        function toggleTask(taskElement, taskId) {
             const checkbox = taskElement.querySelector('.checkbox');
             checkbox.checked = !checkbox.checked;
             taskElement.classList.toggle('completed');
+            tasks[taskId] = checkbox.checked;
+            saveTasks();
         }
 
-        // Automatically open the first phase on load
+        function saveTasks() {
+            localStorage.setItem('salesDashboardTasks', JSON.stringify(tasks));
+        }
+
+        function loadTasks() {
+            const savedTasks = JSON.parse(localStorage.getItem('salesDashboardTasks'));
+            if (savedTasks) {
+                tasks = savedTasks;
+                Object.keys(tasks).forEach(taskId => {
+                    const taskElement = document.querySelector(`[onclick="toggleTask(this, '${taskId}')"]`);
+                    if (taskElement && tasks[taskId]) {
+                        taskElement.classList.add('completed');
+                        taskElement.querySelector('.checkbox').checked = true;
+                    }
+                });
+            }
+        }
+        
+        // --- Modal ---
+        const modal = document.getElementById('addProspectModal');
+        const prospectForm = document.getElementById('prospectForm');
+
+        function openModal() { modal.classList.add('active'); }
+        function closeModal() { modal.classList.remove('active'); }
+
+        window.onclick = function(event) {
+            if (event.target == modal) { closeModal(); }
+        }
+
+        prospectForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const name = document.getElementById('prospectName').value;
+            alert(`เพิ่ม Prospect ใหม่สำเร็จ: ${name}`);
+            prospectForm.reset();
+            closeModal();
+        });
+
+        // --- Chart.js ---
+        const ctx = document.getElementById('prospectChart').getContext('2d');
+        const prospectChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Prospects', 'กำลังติดตาม', 'ปิดดีลแล้ว'],
+                datasets: [{
+                    label: 'สถานะลูกค้า',
+                    data: [12, 3, 1], // Static data for now
+                    backgroundColor: [
+                        'rgba(74, 144, 226, 0.8)', // Blue
+                        'rgba(245, 166, 35, 0.8)',  // Orange
+                        'rgba(39, 174, 96, 0.8)'    // Green
+                    ],
+                    borderColor: [
+                        'rgba(74, 144, 226, 1)',
+                        'rgba(245, 166, 35, 1)',
+                        'rgba(39, 174, 96, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
+        });
+
+        // --- Initialize on Page Load ---
         document.addEventListener('DOMContentLoaded', function() {
+            loadTasks();
+            // Automatically open the first phase
             const firstPhaseHeader = document.querySelector('.phase-header');
             if (firstPhaseHeader) {
                 togglePhase(firstPhaseHeader);
