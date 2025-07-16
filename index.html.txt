@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Recovery Dashboard V2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --primary-dark: #3a7ac8;
+            --secondary-color: #50E3C2;
+            --text-color: #333;
+            --text-light: #555;
+            --bg-color: #f4f7fa;
+            --card-bg: #ffffff;
+            --border-color: #e0e6ed;
+            --danger-color: #D0021B;
+            --warning-color: #F5A623;
+            --success-color: #27AE60;
+            --shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+            --border-radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: var(--text-color);
+            font-size: 2.8em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header .subtitle {
+            color: var(--text-light);
+            font-size: 1.2em;
+            margin-bottom: 25px;
+        }
+
+        .crisis-banner {
+            background: var(--danger-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            font-size: 1.3em;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(208, 2, 27, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #50E3C2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .phase-container {
+            margin-bottom: 25px;
+        }
+
+        .phase-header {
+            background: var(--card-bg);
+            color: var(--text-color);
+            padding: 20px 25px;
+            border-radius: var(--border-radius);
+            margin-bottom: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .phase-header:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+            border-color: var(--primary-color);
+        }
+
+        .phase-header h2 {
+            font-size: 1.6em;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .phase-header p {
+            font-size: 1em;
+            color: var(--text-light);
+        }
+        
+        .phase-header .toggle-icon {
+            font-size: 1.8em;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .phase-content {
+            display: none;
+            padding: 25px;
+            background: #fafcff;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            border: 1px solid var(--border-color);
+            border-top: none;
+        }
+
+        .phase-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .phase-header.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+        
+        .phase-header.active {
+             border-bottom-left-radius: 0;
+             border-bottom-right-radius: 0;
+        }
+
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .week-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid #dbe2ea;
+        }
+        .week-card:last-child {
+            margin-bottom: 0;
+        }
+        
+        .week-card h3 {
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            font-weight: 600;
+            border-left: 4px solid var(--primary-color);
+            padding-left: 15px;
+        }
+        
+        .week-card h4 {
+            color: var(--text-color);
+            margin-bottom: 15px;
+            font-size: 1.15em;
+            font-weight: 600;
+        }
+
+        .customer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .customer-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            transition: box-shadow 0.3s;
+        }
+        .customer-card:hover {
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .customer-card input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1em;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .customer-card input::placeholder {
+            color: #999;
+        }
+
+        .customer-card input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+        }
+
+        .task-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .task-list li {
+            background: var(--card-bg);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 5px solid var(--secondary-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .task-list li:hover {
+            background: #fdfdfd;
+            transform: translateX(5px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+        }
+
+        .task-list li.completed {
+            background: #f1fef9;
+            color: #888;
+            border-left-color: var(--success-color);
+        }
+        
+        .task-list li.completed .task-text {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        
+        .checkbox {
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: #fff;
+            margin-right: 15px;
+            font: inherit;
+            color: currentColor;
+            width: 1.15em;
+            height: 1.15em;
+            border: 0.15em solid #bdc3c7;
+            border-radius: 0.25em;
+            transform: translateY(-0.075em);
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .checkbox::before {
+            content: "";
+            width: 0.65em;
+            height: 0.65em;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em var(--success-color);
+            transform-origin: bottom left;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+
+        .checkbox:checked::before {
+            transform: scale(1);
+        }
+        
+        .task-list li.completed .checkbox {
+            border-color: var(--success-color);
+        }
+
+        .day-schedule {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .day-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .progress-container {
+            background-color: var(--card-bg); 
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: var(--border-color);
+            border-radius: 25px;
+            overflow: hidden;
+            margin: 15px 0 10px 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color), var(--secondary-color));
+            transition: width 0.5s ease-in-out;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        #progressText {
+            text-align: center;
+            font-weight: 500;
+            color: var(--text-light);
+            font-size: 1em;
+        }
+
+        .emergency-plan {
+            background: #fff8e1;
+            color: #6d4c41;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            margin-top: 40px;
+            border: 1px solid #ffe5b0;
+            box-shadow: var(--shadow);
+        }
+
+        .emergency-plan h3 {
+            font-size: 1.6em;
+            margin-bottom: 20px;
+            color: #e65100;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .emergency-plan .day-card {
+            border-width: 1px;
+        }
+        .emergency-plan .level-1 { background-color: #FFF3E0; border-color: #FFB74D; }
+        .emergency-plan .level-2 { background-color: #FFE0B2; border-color: #FF9800; }
+        .emergency-plan .level-3 { background-color: #FFCCBC; border-color: #F4511E; }
+
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .btn svg { width: 20px; height: 20px; }
+
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-success { background: var(--success-color); color: white; }
+        .btn-warning { background: var(--warning-color); color: black; }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .script-box {
+            background: #eef5ff;
+            border-left: 5px solid var(--primary-color);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .script-box h4 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .final-question {
+            text-align: center; 
+            margin-top: 40px; 
+            padding: 30px; 
+            background: var(--card-bg); 
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .final-question h3 {
+            color: var(--danger-color);
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .final-question p {
+            font-size: 1.2em;
+            color: var(--text-color);
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 15px; }
+            .header h1 { font-size: 2.2em; }
+            .stats-grid, .day-schedule, .customer-grid {
+                grid-template-columns: 1fr;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>
+                 🎯 Sales Recovery Dashboard
+            </h1>
+            <p class="subtitle">แผนฟื้นฟูยอดขายสู่เป้าหมาย 1,000,000 บาท</p>
+            <div class="crisis-banner">
+                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+                CRISIS MODE: 21 สัปดาห์ (28 ก.ค. - 20 ธ.ค. 2568)
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card"><h3>4</h3><p>ลูกค้าเดิม</p></div>
+            <div class="stat-card"><h3>857,688</h3><p>บาท ที่ต้องหา</p></div>
+            <div class="stat-card"><h3>21</h3><p>สัปดาห์</p></div>
+            <div class="stat-card"><h3>0%</h3><p>Referral Rate</p></div>
+        </div>
+
+        <div class="phase-container">
+            <div class="phase-header" onclick="togglePhase('phase1')">
+                <div>
+                    <h2>Phase 1: Customer Recovery (สัปดาห์ 1-2)</h2>
+                    <p>28 ก.ค. - 10 ส.ค. 2568 | เป้าหมาย: ทำให้ลูกค้าเดิม 4 ราย กลายเป็น "แฟนตัวจริง"</p>
+                </div>
+                <div class="toggle-icon">▾</div>
+            </div>
+            <div id="phase1" class="phase-content">
+                <div class="week-card">
+                    <h3>สัปดาห์ที่ 1: "Value Bombing"</h3>
+                    <div class="customer-grid">
+                        <div class="customer-card"><input type="text" placeholder="ชื่อลูกค้าคนที่ 1"><input type="text" placeholder="ปัญหาของลูกค้า"><input type="text" placeholder="สิ่งที่ต้องการ"></div>
+                        <div class="customer-card"><input type="text" placeholder="ชื่อลูกค้าคนที่ 2"><input type="text" placeholder="ปัญหาของลูกค้า"><input type="text" placeholder="สิ่งที่ต้องการ"></div>
+                        <div class="customer-card"><input type="text" placeholder="ชื่อลูกค้าคนที่ 3"><input type="text" placeholder="ปัญหาของลูกค้า"><input type="text" placeholder="สิ่งที่ต้องการ"></div>
+                        <div class="customer-card"><input type="text" placeholder="ชื่อลูกค้าคนที่ 4"><input type="text" placeholder="ปัญหาของลูกค้า"><input type="text" placeholder="สิ่งที่ต้องการ"></div>
+                    </div>
+                     <div class="day-schedule">
+                        <div class="day-card"><h4>จันทร์</h4><ul class="task-list"><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">วิเคราะห์ลูกค้าเดิม 4 ราย</span></li></ul></div>
+                        <div class="day-card"><h4>อังคาร-พุธ</h4><ul class="task-list"><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">ส่งข้อมูลที่เป็นประโยชน์</span></li><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">โทรถามความเป็นไป</span></li></ul></div>
+                        <div class="day-card"><h4>พฤหัส-ศุกร์</h4><ul class="task-list"><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">เยี่ยมลูกค้าทุกคน</span></li><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">นำของเยี่ยมที่มีค่า</span></li></ul></div>
+                        <div class="day-card"><h4>เสาร์</h4><ul class="task-list"><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">ติดตามหลังเยี่ยม</span></li><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">วางแผนสัปดาห์หน้า</span></li></ul></div>
+                    </div>
+                </div>
+                 <div class="week-card">
+                    <h3>สัปดาห์ที่ 2: "Referral System Setup"</h3>
+                     <div class="script-box">
+                        <h4>💬 สคริปต์ขอแนะนำ</h4>
+                        <p>"พี่ครับ ผมอยากขอความช่วยเหลือ ผมกำลังหาคนที่สนใจเรื่องการวางแผนการเงิน ไม่ใช่ขาย แค่อยากให้คำปรึกษาฟรีๆ พี่รู้จักใครที่อาจสนใจไหม?"</p>
+                    </div>
+                    <div class="day-schedule">
+                        <div class="day-card"><h4>จันทร์</h4><ul class="task-list"><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">ทำ Referral Card</span></li><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">เตรียมของขวัญ</span></li></ul></div>
+                        <div class="day-card"><h4>อังคาร-พุธ</h4><ul class="task-list"><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">ทดสอบขอแนะนำ 1 ราย</span></li></ul></div>
+                        <div class="day-card"><h4>พฤหัส-ศุกร์</h4><ul class="task-list"><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">ติดต่อคนที่ได้รับแนะนำ</span></li></ul></div>
+                        <div class="day-card"><h4>เสาร์</h4><ul class="task-list"><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">ประเมินผลและปรับปรุง</span></li></ul></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="phase-container">
+            <div class="phase-header" onclick="togglePhase('phase2')">
+                 <div>
+                    <h2>Phase 2: Prospecting Intensive (สัปดาห์ 3-8)</h2>
+                    <p>11 ส.ค. - 21 ก.ย. 2568 | เป้าหมาย: สร้างฐานลูกค้าใหม่ 20 ราย</p>
+                </div>
+                <div class="toggle-icon">▾</div>
+            </div>
+            <div id="phase2" class="phase-content">
+                <div class="week-card">
+                    <h3>🎯 แหล่งหา Prospects ใหม่</h3>
+                    <div class="day-schedule">
+                        <div class="day-card"><h4>Cold Outreach</h4><ul class="task-list"><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">ผู้ประกอบการร้านค้า</span></li><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">เจ้าของร้านอาหาร</span></li><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">นักขายสาขาอื่น</span></li></ul></div>
+                        <div class="day-card"><h4>Content Marketing</h4><ul class="task-list"><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">สร้าง Facebook Page</span></li><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">ทำ Live การเงิน</span></li><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">แชร์ Case Study</span></li></ul></div>
+                        <div class="day-card"><h4>Community Building</h4><ul class="task-list"><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">เข้าร่วมกลุ่ม SME</span></li><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">ไปงาน Networking</span></li><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">ร่วมกิจกรรมกุศล</span></li></ul></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="phase-container">
+            <div class="phase-header" onclick="togglePhase('phase3')">
+                 <div>
+                    <h2>Phase 3: Scale Up (สัปดาห์ 9-15)</h2>
+                    <p>22 ก.ย. - 10 พ.ย. 2568 | เป้าหมาย: ขยายระบบที่ได้ผล</p>
+                </div>
+                <div class="toggle-icon">▾</div>
+            </div>
+            <div id="phase3" class="phase-content">
+                <div class="week-card">
+                  <h3>⚙️ ระบบที่ต้องพัฒนา</h3>
+                   <div class="day-schedule">
+                        <div class="day-card"><h4>CRM System</h4><ul class="task-list"><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">ติดตาม Prospects</span></li></ul></div>
+                        <div class="day-card"><h4>Content Calendar</h4><ul class="task-list"><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">วางแผนโพสต์ล่วงหน้า</span></li></ul></div>
+                        <div class="day-card"><h4>Follow-up System</h4><ul class="task-list"><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">ตั้งเตือนติดตามผล</span></li></ul></div>
+                        <div class="day-card"><h4>Referral Rewards</h4><ul class="task-list"><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">กำหนดของขวัญแนะนำ</span></li></ul></div>
+                   </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="phase-container">
+            <div class="phase-header" onclick="togglePhase('phase4')">
+                 <div>
+                    <h2>Phase 4: Final Sprint (สัปดาห์ 16-21)</h2>
+                    <p>11 พ.ย. - 20 ธ.ค. 2568 | เป้าหมาย: ปิดยอดให้ได้ 1 ล้าน</p>
+                </div>
+                <div class="toggle-icon">▾</div>
+            </div>
+            <div id="phase4" class="phase-content">
+                 <div class="week-card">
+                    <h3>🚀 กลยุทธ์พิเศษปิดท้าย</h3>
+                     <div class="day-schedule">
+                        <div class="day-card"><h4>Year-End Promotion</h4><ul class="task-list"><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">สร้างข้อเสนอพิเศษ</span></li></ul></div>
+                        <div class="day-card"><h4>Urgency Creation</h4><ul class="task-list"><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">แจ้งสินค้าที่จะปรับราคา</span></li></ul></div>
+                        <div class="day-card"><h4>Relationship Leverage</h4><ul class="task-list"><li onclick="toggleTask(this)"><input type="checkbox" class="checkbox"><span class="task-text">ใช้ความสัมพันธ์ที่สร้างมา</span></li></ul></div>
+                    </div>
+                 </div>
+            </div>
+        </div>
+        
+        <div class="progress-container">
+            <h3 style="text-align:center; font-size: 1.4em; font-weight: 600;">ภาพรวมความคืบหน้า</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+            <p id="progressText">0% สำเร็จ (0/23 Tasks)</p>
+        </div>
+
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="updateProgress()">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                อัปเดตความคืบหน้า
+            </button>
+            <button class="btn btn-success" onclick="addProspect()">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                เพิ่ม Prospect
+            </button>
+            <button class="btn btn-warning" onclick="emergencyMode()">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M12.01 21.49L2.5 21.5c-.82 0-1.5-.67-1.5-1.5v-16c0-.83.68-1.5 1.5-1.5h19c.82 0 1.5.67 1.5 1.5v4.04c-1.42-.8-3.04-1.29-4.79-1.54L12 2.5 4.5 6.25l7.5 3.75 4.75-2.38c-.2-.58-.33-1.2-.4-1.87L12 7.5 2.5 3.5V19.5h10.01c.32.89.77 1.7 1.33 2.41L12.01 21.49zM23 14.5c0-2.48-2.02-4.5-4.5-4.5S14 12.02 14 14.5s2.02 4.5 4.5 4.5 4.5-2.02 4.5-4.5zm-5.08 2.35l-1.42-1.42.71-.71 1.41 1.41.01.01 2.12-2.12.71.71-2.83 2.83z" fill-opacity=".3"/><path d="M12.01 21.49L2.5 21.5c-.82 0-1.5-.67-1.5-1.5v-16c0-.83.68-1.5 1.5-1.5h19c.82 0 1.5.67 1.5 1.5v4.04c-1.42-.8-3.04-1.29-4.79-1.54L12 2.5 4.5 6.25l7.5 3.75 4.75-2.38c-.2-.58-.33-1.2-.4-1.87L12 7.5 2.5 3.5V19.5h10.01c.32.89.77 1.7 1.33 2.41L12.01 21.49zM23 14.5c0-2.48-2.02-4.5-4.5-4.5S14 12.02 14 14.5s2.02 4.5 4.5 4.5 4.5-2.02 4.5-4.5zm-5.08 2.35l-1.42-1.42.71-.71 1.41 1.41.01.01 2.12-2.12.71.71-2.83 2.83z"/></svg>
+                โหมดฉุกเฉิน
+            </button>
+        </div>
+        
+        <div class="emergency-plan">
+             <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M12 5.99L19.53 19H4.47L12 5.99M12 2L1 21h22L12 2zm1 14h-2v2h2v-2zm0-6h-2v4h2v-4z"/></svg>
+                แผนฉุกเฉิน (ถ้าตามไม่ทัน)
+             </h3>
+             <div class="day-schedule">
+                <div class="day-card level-1"><h4>ระดับ 1: ช้า 20%</h4><p>เพิ่มชั่วโมงทำงาน, ติดต่อ 15 prospects/สัปดาห์</p></div>
+                <div class="day-card level-2"><h4>ระดับ 2: ช้า 40%</h4><p>ใช้ "Help me" approach, ลดคอมมิชชั่น, ขอความช่วยเหลือ</p></div>
+                <div class="day-card level-3"><h4>ระดับ 3: ช้า 60%</h4><p>ปรับเป้าหมายใหม่, เน้นสร้างฐานสำหรับปีหน้า</p></div>
+             </div>
+        </div>
+
+        <div class="final-question">
+            <h3>❓ คำถามสำคัญ</h3>
+            <p>
+                <strong>คุณพร้อมที่จะเริ่มจาก "การขอโทษ" และ "การให้ใหม่" กับลูกค้าเดิมไหม?</strong>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function togglePhase(phaseId) {
+            const content = document.getElementById(phaseId);
+            const header = content.previousElementSibling;
+            const isActive = content.classList.contains('active');
+
+            document.querySelectorAll('.phase-content.active').forEach(activeContent => {
+                activeContent.classList.remove('active');
+                activeContent.previousElementSibling.classList.remove('active');
+            });
+
+            if (!isActive) {
+                content.classList.add('active');
+                header.classList.add('active');
+            }
+        }
+
+        function toggleTask(taskElement, event) {
+            event.stopPropagation(); 
+            const checkbox = taskElement.querySelector('.checkbox');
+            checkbox.checked = !checkbox.checked;
+            taskElement.classList.toggle('completed', checkbox.checked);
+            updateProgress();
+        }
+        
+        document.querySelectorAll('.task-list li').forEach(li => {
+            li.addEventListener('click', function(event) {
+                toggleTask(this, event);
+            });
+        });
+
+        function updateProgress() {
+            const totalTasks = document.querySelectorAll('.task-list li').length;
+            if (totalTasks === 0) {
+                document.getElementById('progressText').textContent = 'ไม่มี Task ในระบบ';
+                return;
+            };
+            
+            const completedTasks = document.querySelectorAll('.task-list li.completed').length;
+            const progressPercent = Math.round((completedTasks / totalTasks) * 100);
+            
+            const progressBarFill = document.getElementById('progressBar');
+            progressBarFill.style.width = progressPercent + '%';
+            progressBarFill.textContent = progressPercent > 10 ? `${progressPercent}%` : '';
+
+            document.getElementById('progressText').textContent = `${progressPercent}% สำเร็จ (${completedTasks}/${totalTasks} Tasks)`;
+        }
+
+        function addProspect() {
+            const name = prompt('ชื่อ Prospect:');
+            if (name) {
+                const contact = prompt('ข้อมูลติดต่อ:');
+                const status = prompt('สถานะ (Cold/Warm/Hot):');
+                alert(`✅ เพิ่ม Prospect สำเร็จ!\n\nชื่อ: ${name}\nติดต่อ: ${contact}\nสถานะ: ${status}`);
+            }
+        }
+
+        function emergencyMode() {
+            if (confirm('🚨 เปิดโหมดฉุกเฉิน?\n\nจะปรับเป้าหมายเป็น 10 ชั่วโมง/วัน และเพิ่มจำนวน prospects')) {
+                alert('🔥 โหมดฉุกเฉิน เปิดแล้ว!\n\n✅ เป้าหมายรายวัน: 10 ชั่วโมง\n✅ Prospects: 15 ราย/สัปดาห์\n✅ Follow-up: ทุกวัน');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgress();
+            togglePhase('phase1');
+        });
+    </script>
+</body>
+</html>
